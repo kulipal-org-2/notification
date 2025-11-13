@@ -6,6 +6,7 @@ package notification;
 service NotificationService {
   rpc Push (PushNotificationDto) returns (google.protobuf.Empty) {}
   rpc Email (EmailDto) returns (google.protobuf.Empty) {}
+  rpc Sms (SmsDto) returns (google.protobuf.Empty) {}
 }
 
 message PushNotificationDto {
@@ -20,5 +21,12 @@ message EmailDto {
   string subject = 2;
   string email = 3;
   map<string, string> data = 4;
+}
+
+message SmsDto {
+  string phoneNumber = 1;
+  string message = 2;
+  string senderId = 3;
+  string channel = 4;
 }
 
