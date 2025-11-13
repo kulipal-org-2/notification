@@ -31,7 +31,6 @@ export class MailEventListeners {
         subject: payload.subject,
         html: await render(Template(payload.data)),
       };
-
       await this.mailService.sendMail(emailConfig);
 
       this.logger.log(
