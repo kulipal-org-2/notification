@@ -4,6 +4,7 @@ import { GrpcMethod } from '@nestjs/microservices';
 import { NotificationEvents } from '../../../common';
 import { type IGenericEmailEvent } from '../../../mail/interface';
 import { type IPushNotificationData } from '../../../push-notification/interfaces';
+import { type ISmsEvent } from '../../../sms/interfaces/sms-event.interface';
 
 @Controller()
 export class NotificationController {
@@ -14,6 +15,7 @@ export class NotificationController {
   @GrpcMethod('NotificationService', 'Email')
   handleEmailNotification(data: IGenericEmailEvent) {
     this.eventEmitter.emit(NotificationEvents.email, data);
+    console.log('notification service: email event dispatched');
     this.logger.log(`email event dispatched`);
   }
 
@@ -21,5 +23,11 @@ export class NotificationController {
   handlePushNotification(data: IPushNotificationData) {
     this.eventEmitter.emit(NotificationEvents.push, data);
     this.logger.log(`push notification event dispatched`);
+  }
+
+  @GrpcMethod('NotificationService', 'Sms')
+  handleSmsNotification(data: ISmsEvent) {
+    this.eventEmitter.emit(NotificationEvents.sms, data);
+    this.logger.log(`sms event dispatched`);
   }
 }

@@ -6,11 +6,13 @@ import { AuthThanks, BlueText, OTPtext } from '../../components';
 interface EmailVerificationOTPProps {
   username: string;
   otp: string;
+  validityMinutes?: string;
 }
 
 export const EmailVerificationOTP = ({
   username,
   otp,
+  validityMinutes = '10',
 }: EmailVerificationOTPProps) => {
   return (
     <KulipalEmailLayout
@@ -31,7 +33,7 @@ export const EmailVerificationOTP = ({
       <Text>
         This code is valid for{' '}
         <span>
-          <BlueText text=" 5 minutes" />
+          <BlueText text={` ${validityMinutes} minutes`} />
         </span>
         . If you did not sign up for an account, please disregard this email.
       </Text>
