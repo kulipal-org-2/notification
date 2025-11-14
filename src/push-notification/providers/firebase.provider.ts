@@ -87,7 +87,6 @@ export class FirebasePushProvider implements IPushNotificationProvider {
             },
           },
         };
-        console.log(message);
 
         const response = await this.firebaseAdmin.messaging().send(message);
 

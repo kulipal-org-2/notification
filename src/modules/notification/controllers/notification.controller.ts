@@ -15,7 +15,6 @@ export class NotificationController {
   @GrpcMethod('NotificationService', 'Email')
   handleEmailNotification(data: IGenericEmailEvent) {
     this.eventEmitter.emit(NotificationEvents.email, data);
-    console.log('notification service: email event dispatched');
     this.logger.log(`email event dispatched`);
   }
 
