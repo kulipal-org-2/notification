@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EmailVerificationOTP } from './customer';
+import { EmailVerificationOTP, PasswordReset } from './customer';
 
 @Injectable()
 export class EmailTemplateRegistry {
@@ -13,6 +13,7 @@ export class EmailTemplateRegistry {
   private registerDefaultTemplates() {
     // register all templates here
     this.registerTemplate('signup-otp', EmailVerificationOTP);
+    this.registerTemplate('password-reset-request', PasswordReset);
   }
 
   registerTemplate(name: string, template: any) {
