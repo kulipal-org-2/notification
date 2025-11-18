@@ -6,9 +6,14 @@ import { AuthThanks, StandardButton } from '../../components/utils.component';
 interface PasswordResetProps {
   username: string;
   link: string;
+  validityMinutes?: string;
 }
 
-const PasswordReset = ({ username, link }: PasswordResetProps) => {
+export const PasswordReset = ({
+  username,
+  link,
+  validityMinutes = '15',
+}: PasswordResetProps) => {
   return (
     <KulipalEmailLayout
       dontShowThanks={true}
@@ -26,6 +31,10 @@ const PasswordReset = ({ username, link }: PasswordResetProps) => {
         text="Reset Password"
         link={link}
       />
+      <Text>
+        This link will expire in {validityMinutes} minutes. If you did not
+        request this, please contact our support team immediately.
+      </Text>
       <AuthThanks />
     </KulipalEmailLayout>
   );
@@ -34,5 +43,4 @@ PasswordReset.PreviewProps = {
   username: 'Royal Blood',
   link: 'https://www.kulipal.com',
 } as PasswordResetProps;
-
-export default PasswordReset;
+ 
