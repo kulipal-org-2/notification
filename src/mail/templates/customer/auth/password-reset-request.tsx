@@ -31,10 +31,7 @@ export const PasswordReset = ({
         text="Reset Password"
         link={link}
       />
-      <Text>
-        This link will expire in {validityMinutes} minutes. If you did not
-        request this, please contact our support team immediately.
-      </Text>
+      <Text>This link will expire in {validityMinutes} minutes.</Text>
       <AuthThanks />
     </KulipalEmailLayout>
   );
@@ -43,4 +40,3 @@ PasswordReset.PreviewProps = {
   username: 'Royal Blood',
   link: 'https://www.kulipal.com',
 } as PasswordResetProps;
- 
