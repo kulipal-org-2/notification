@@ -18,6 +18,6 @@ async function bootstrap() {
   app.enableShutdownHooks();
   await app.startAllMicroservices();
 
-  await app.listen(5001);
+  await app.listen(process.env.APP_PORT ?? 5001);
 }
 bootstrap();
