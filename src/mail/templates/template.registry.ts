@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EmailVerificationOTP, PasswordReset } from './customer';
-import { WalletPinResetOTP } from './customer/auth/wallet-pin-reset-otp';
+import { WalletPinResetOTP } from './customer/wallet/wallet-pin-reset-otp';
 
 @Injectable()
 export class EmailTemplateRegistry {
