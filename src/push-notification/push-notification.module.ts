@@ -4,6 +4,8 @@ import { PushNotificationService } from './push-notification.service';
 import { PushNotificationEventListener } from './events';
 import { FirebasePushProvider } from './providers';
 import { IPushNotificationProvider } from './interfaces';
+import { DatabaseModule } from '../database/database.module';
+import { DeviceTokenService } from './services';
 
 export type PushProviderType = 'firebase';
 
@@ -13,6 +15,7 @@ export class PushNotificationModule {
     const providers: Provider[] = [
       PushNotificationService,
       PushNotificationEventListener,
+      DeviceTokenService,
       {
         provide: 'PUSH_NOTIFICATION_PROVIDER',
         inject: [ConfigService],
@@ -35,8 +38,9 @@ export class PushNotificationModule {
 
     return {
       module: PushNotificationModule,
+      imports: [DatabaseModule],
       providers,
-      exports: [PushNotificationService],
+      exports: [PushNotificationService, DeviceTokenService],
     };
   }
 }
