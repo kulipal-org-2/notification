@@ -19,7 +19,7 @@ export class FirebasePushProvider implements IPushNotificationProvider {
     this.firebaseAdmin = admin.apps[0]!;
   }
 
-  async send(notificationData: IPushNotificationData) {
+  async send(notificationData: IPushNotificationData): Promise<void> {
     try {
       const { title, body, data, tokens } = notificationData;
 
@@ -33,8 +33,23 @@ export class FirebasePushProvider implements IPushNotificationProvider {
           title,
           body,
         },
-        data,
+        data: data || {},
         tokens,
+        apns: {
+          payload: {
+            aps: {
+              sound: 'default',
+              badge: 1,
+            },
+          },
+        },
+        android: {
+          priority: 'high',
+          notification: {
+            sound: 'default',
+            channelId: 'default',
+          },
+        },
       };
 
       const response = await this.firebaseAdmin

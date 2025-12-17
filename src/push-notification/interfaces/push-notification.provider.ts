@@ -3,6 +3,7 @@ export interface IPushNotificationData {
   body: string;
   data?: Record<string, string>;
   tokens: string[];
+  userId?: string; // Optional: if provided, will fetch tokens from database
 }
 
 export interface IPushNotificationProvider {
