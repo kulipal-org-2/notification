@@ -54,7 +54,18 @@ export class PushNotificationService {
       };
 
       // Send using multicast (supports multiple tokens)
-      return await this.provider.send(notificationWithTokens);
+      const result = await this.provider.send(notificationWithTokens);
+
+      const invalidTokens = result.invalidTokens ?? [];
+      if (invalidTokens.length > 0) {
+        this.deviceTokenService.deactivateTokens(invalidTokens).catch((err) => {
+          this.logger.warn(
+            `Failed to deactivate invalid tokens: ${err?.message ?? err}`,
+          );
+        });
+      }
+
+      return result;
     } catch (error: any) {
       this.logger.error(`Failed to send push notification: ${error.message}`);
       return { successCount: 0, failureCount: 1 };

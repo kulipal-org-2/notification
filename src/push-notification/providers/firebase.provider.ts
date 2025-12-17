@@ -11,6 +11,14 @@ export class FirebasePushProvider implements IPushNotificationProvider {
   private readonly logger = new Logger(FirebasePushProvider.name);
   private readonly firebaseAdmin: admin.app.App;
 
+  private readonly invalidTokenErrorCodes = new Set<string>([
+    // Token is invalid/expired/not registered anymore
+    'messaging/registration-token-not-registered',
+    'messaging/invalid-registration-token',
+    // Token belongs to a different Firebase project (common in dev/prod mixups)
+    'messaging/mismatched-credential',
+  ]);
+
   private redactToken(token: string): string {
     if (!token) return '<empty>';
     if (token.length <= 12) return '<redacted>';
@@ -69,6 +77,7 @@ export class FirebasePushProvider implements IPushNotificationProvider {
       const result: IPushNotificationSendResult = {
         successCount: response.successCount,
         failureCount: response.failureCount,
+        invalidTokens: [],
       };
 
       if (result.failureCount > 0) {
@@ -86,6 +95,17 @@ export class FirebasePushProvider implements IPushNotificationProvider {
         this.logger.warn(
           `Firebase multicast failures (showing up to 10): ${JSON.stringify(failures)}`,
         );
+
+        // Collect invalid tokens for cleanup (do NOT log raw tokens)
+        for (let idx = 0; idx < response.responses.length; idx++) {
+          const r = response.responses[idx];
+          if (r?.success) continue;
+          const code = (r.error as any)?.code as string | undefined;
+          if (code && this.invalidTokenErrorCodes.has(code)) {
+            const token = tokens[idx];
+            if (token) result.invalidTokens!.push(token);
+          }
+        }
       }
 
       if (result.failureCount > 0 && result.successCount === 0) {
@@ -108,7 +128,7 @@ export class FirebasePushProvider implements IPushNotificationProvider {
         `Failed to send push notification: ${error?.code ?? ''} ${error?.message ?? error}`,
         error?.stack,
       );
-      return { successCount: 0, failureCount: 1 };
+      return { successCount: 0, failureCount: 1, invalidTokens: [] };
     }
   }
 
@@ -166,6 +186,7 @@ export class FirebasePushProvider implements IPushNotificationProvider {
       const result: IPushNotificationSendResult = {
         successCount,
         failureCount,
+        invalidTokens: [],
       };
 
       if (result.failureCount > 0) {
@@ -186,6 +207,17 @@ export class FirebasePushProvider implements IPushNotificationProvider {
         this.logger.warn(
           `Firebase topic failures (showing up to 10): ${JSON.stringify(failures)}`,
         );
+
+        for (let idx = 0; idx < results.length; idx++) {
+          const r = results[idx];
+          if (r.status === 'fulfilled') continue;
+          const reason: any = (r as PromiseRejectedResult).reason;
+          const code = reason?.code as string | undefined;
+          if (code && this.invalidTokenErrorCodes.has(code)) {
+            const token = tokens[idx];
+            if (token) result.invalidTokens!.push(token);
+          }
+        }
       }
 
       if (result.failureCount > 0 && result.successCount === 0) {
@@ -208,7 +240,7 @@ export class FirebasePushProvider implements IPushNotificationProvider {
         `Failed to send push notification: ${error?.code ?? ''} ${error?.message ?? error}`,
         error?.stack,
       );
-      return { successCount: 0, failureCount: 1 };
+      return { successCount: 0, failureCount: 1, invalidTokens: [] };
     }
   }
 }

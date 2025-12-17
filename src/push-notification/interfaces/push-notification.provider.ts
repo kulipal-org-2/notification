@@ -9,6 +9,7 @@ export interface IPushNotificationData {
 export interface IPushNotificationSendResult {
   successCount: number;
   failureCount: number;
+  invalidTokens?: string[];
 }
 
 export interface IPushNotificationProvider {
