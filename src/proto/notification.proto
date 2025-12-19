@@ -16,6 +16,7 @@ message PushNotificationDto {
   string body = 2;
   repeated string tokens = 3;
   map<string, string> data = 4;
+  optional string userId = 5; // If provided, notification service will fetch tokens for this user
 }
 
 message EmailDto {

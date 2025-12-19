@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import {
   type IPushNotificationData,
   type IPushNotificationProvider,
+  type IPushNotificationSendResult,
 } from './interfaces';
 import { DeviceTokenService } from './services';
 
@@ -15,9 +16,11 @@ export class PushNotificationService {
     private readonly deviceTokenService: DeviceTokenService,
   ) {}
 
-  async send(notificationData: IPushNotificationData) {
+  async send(
+    notificationData: IPushNotificationData,
+  ): Promise<IPushNotificationSendResult | null> {
     try {
-      let tokens = notificationData.tokens;
+      let tokens = notificationData.tokens ?? [];
 
       if (notificationData.userId) {
         const deviceTokens = await this.deviceTokenService.getActiveTokens(
@@ -29,12 +32,19 @@ export class PushNotificationService {
           this.logger.warn(
             `No active device tokens found for user ${notificationData.userId}`,
           );
-          return;
+          return null;
         }
 
         this.logger.log(
           `Found ${tokens.length} active device tokens for user ${notificationData.userId}`,
         );
+      }
+
+      if (tokens.length === 0) {
+        this.logger.warn(
+          `No tokens provided for push notification${notificationData.userId ? ` (userId=${notificationData.userId})` : ''}`,
+        );
+        return null;
       }
 
       // Create notification data with fetched tokens
@@ -44,10 +54,21 @@ export class PushNotificationService {
       };
 
       // Send using multicast (supports multiple tokens)
-      await this.provider.send(notificationWithTokens);
+      const result = await this.provider.send(notificationWithTokens);
+
+      const invalidTokens = result.invalidTokens ?? [];
+      if (invalidTokens.length > 0) {
+        this.deviceTokenService.deactivateTokens(invalidTokens).catch((err) => {
+          this.logger.warn(
+            `Failed to deactivate invalid tokens: ${err?.message ?? err}`,
+          );
+        });
+      }
+
+      return result;
     } catch (error: any) {
       this.logger.error(`Failed to send push notification: ${error.message}`);
-      //   throw error;
+      return { successCount: 0, failureCount: 1 };
     }
   }
 }
