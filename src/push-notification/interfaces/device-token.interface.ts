@@ -4,7 +4,6 @@ export interface IRegisterDeviceTokenDto {
   userId: string;
   token: string;
   platform?: Platform;
-  deviceId?: string;
 }
 
 export interface IUnregisterDeviceTokenDto {
