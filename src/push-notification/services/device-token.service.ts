@@ -18,48 +18,21 @@ export class DeviceTokenService {
 
   @CreateRequestContext()
   async registerToken(data: IRegisterDeviceTokenDto): Promise<DeviceToken> {
-    const { userId, token, platform, deviceId } = data;
+    const { userId, token, platform } = data;
     this.logger.log(
       `Registering device token for user ${userId}, platform: ${platform ?? 'not provided'}`,
     );
 
-    const existing = await this.em.findOne(DeviceToken, { token });
+    const existing = await this.em.findOne(DeviceToken, { userId, token });
 
     if (existing) {
-      if (existing.userId !== userId) {
-        this.logger.warn(
-          `Token ${token.substring(0, 20)}... reassigned from user ${existing.userId} to ${userId} - device likely switched users`,
-        );
-      }
-
-      existing.userId = userId;
       if (platform !== undefined) {
         existing.platform = platform;
       }
       existing.isActive = true;
-      if (deviceId) {
-        existing.deviceId = deviceId;
-      }
       await this.em.flush();
       this.logger.log(`Updated existing device token for user ${userId}`);
       return existing;
-    }
-
-    if (deviceId) {
-      const existingDeviceTokens = await this.em.find(DeviceToken, {
-        userId,
-        deviceId,
-        isActive: true,
-      });
-
-      if (existingDeviceTokens.length > 0) {
-        this.logger.log(
-          `Found ${existingDeviceTokens.length} existing active token(s) for device ${deviceId}, deactivating`,
-        );
-        for (const oldToken of existingDeviceTokens) {
-          oldToken.isActive = false;
-        }
-      }
     }
 
     const newToken = this.em.create(DeviceToken, {

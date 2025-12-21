@@ -8,7 +8,7 @@ export enum Platform {
 
 @Entity({ tableName: 'device_token' })
 @Index({ properties: ['userId', 'isActive'] })
-@Unique({ properties: ['token'] })
+@Unique({ properties: ['userId', 'token'] })
 export class DeviceToken extends CustomBaseEntity {
   @Property()
   userId!: string;
@@ -18,9 +18,6 @@ export class DeviceToken extends CustomBaseEntity {
 
   @Property({ nullable: true })
   platform?: Platform;
-
-  @Property({ nullable: true })
-  deviceId?: string;
 
   @Property({ default: true })
   isActive: boolean = true;
